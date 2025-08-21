@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settlement Calculator</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Mobile Settlement Calculator for Legal Professionals">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Settlement Calc">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlNldHRsZW1lbnQgQ2FsY3VsYXRvciIsCiAgInNob3J0X25hbWUiOiAiU2V0dGxlQ2FsYyIsCiAgImRlc2NyaXB0aW9uIjogIk1vYmlsZSBTZXR0bGVtZW50IENhbGN1bGF0b3IgZm9yIExlZ2FsIFByb2Zlc3Npb25hbHMiLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzJjM2U1MCIsCiAgInRoZW1lX2NvbG9yIjogIiMyYzNlNTAiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdkbWxsZDBKdmVEMGlNQ0F3SURVNU5pQTBPVFlpSUdobGJXNXpQU0pvZEhSd09pOHZkM2QzTG5jekxtOXlaeTh5TURBd0wzTjJaeUkrUEhKbFkzUWdkMmxrZEdnOUlqUTVOaUlnYUdWcFoyaDBQU0kwT1RZaUlISTRQU0l5TkNJZ1ptbHNiRDBpSXpJNE0wUTJPQ0l2UGp4d1lYUm9JR1E5SWsweU5EZ2dNVGs2VGpJME9DQXhNamd1TmpORE1qUTRJREV4Tmk0ek15QXlNalV1TnpjZ01UQTJMM040TkdNeE9ERWdPVGMwZGxzeU5UUXVPVGNnTmpNdU9USWdNalUwTGprM0lEQXVNakF1TWpZZ01UTXVPVEZzTVRVdU9UUWdNelF1TURkYk5pNDVPU0F3SURFdU1pQXRNUzQwTWlBdE1TNDVOQzF6TWk0NU5pNHpOUzB5T0M0NU1TMHlPQzQ1TVNzbklpOCtQSGRsWVhSb1pYSWdZWEp2ZFc1a1BTSXVPREVLZVhaUUlHeDFiVzVrYVhONElEQWdNVEZzT1RJdU5ESWdOUzQxUkRSMU5pNDBOaUJ4TkM0NElpOCtQSFJsZUhRZ2VEMGlNakEySWlCNVBTSXlOVGtpSUdOc1lYTnpQU0p0YVRraVBqQXpOUzl3Wkc5Y1lqVnBQU3dtVEVGU2FXOW5Qand2ZEdWNGRENCtQSFJsZUhRZ2VEMGlNakEySWlCNVBTSXlPRGNpSUdOc1lYTnpQU0p0YVVveFl5SStQaE11TXk0c015NXNNeTR0UVMxaU5EYzFQQzkwWlhoMFBqeDBaWGgwSUhnOUlqRTVPQ0lnZVQwaU5EVTBJaUJqYkdGemN6MGliV2tySWo0NGFrRXpVU0ErUEM5MFpYaDBQand2YzNablBnPT0iLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiCiAgICB9LAogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1qVTJJaUJvWldsbmFIUTlJakkxTmlJZ2RtbGxkMEp2ZUQwaU1DQXdJREkxTmlBeU5UWWlJR2hsYlc1elBTSm9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQSEpsWTNRZ2QybGtkR2c5SWpJMU5pSWdhR1ZwWjJoMFBTSXlOVFlpSUhJOElqRXlJaUJtYVd4c1BTSWpNamd6UkRZNElpOCtQSEJoZEdnZ1pEMGlUVEV5T0NCRE16TnNOUzA0TFRFeElEUmNPQ0F6ZEM0NExUUXROUzR6TkM0ek9DQTNJREE0TFRBMElHOWNNVFVzTUMweU1TNHdNaUJ0T0M0NU1qVXpQeTV3TmkxaU9TNDBMelpjT0ZJZ01UY3VORGNnTWpJdU1TNGhSa0V4SWo0OGRHVjRkQ0I0UFNJeE1ESWlJSGs5SWpFM01TSWdZMnhoYzNNOUltMXBMalJqSWo0dU9qVTJMVFJnTFRaMElEY3VPRHd2ZEdWNGRENDhkR1Y0ZENCNFBTSTJOQ0lnZVQwaU1qQXhJaUJqYkdGemN6MGliV2s0TlNJK01VRnpQQzkwWlhoMFBqeDBaWGgwSUhnOUlqWTBJaUJuWFQwaU16STFJaUJqYkdGemN6MGliV2w1SWo0elpHTnNQQzkwWlhoMFBqd3ZjM1puUGc9PSIsCiAgICAgICJzaXplcyI6ICIyNTZ4MjU2IiwKICAgICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICAgIH0KICBdCn0=">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDQ5NiA0OTYiIGhlbW5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQ5NiIgaGVpZ2h0PSI0OTYiIHJ4PSIyNCIgZmlsbD0iIzI4M0Q2OCIvPjxwYXRoIGQ9Ik0yNDggMTk6TjI0OCAxMjguNjNDMjQ4IDExNi4zMyAyMjUuNzcgMTA2L3g0YzE4MSA5NzR2WzI1NC45NyA2My45MiAyNTQuOTcgMC4yMC4yNiAxMy45MWwxNS45NCAzNC4wN2w2Ljk5IDAgMS4yIC0xLjQyIC0xLjk0LXMyLjk2LjM1LTI4LjkxLTI4LjkxeiIvPjx3ZWF0aGVyIGFyb3VuZD0iLjgxCmV2UGBsdW5kaXN4IDAgMTFsOTIuNDIgNS41RDR1NDYgcTQ4IiAvPjx0ZXh0IHg9IjIwNiIgeT0iMjU5IiBjbGFzcz0ibTkiPjAzNS9wZG98YjVpPSY8TUFSaW9nUDwvdGV4dD48dGV4dCB4PSIyMDYiIHk9IjI4NyIgY2xhc3M9Im1KMWMiPkMuMy4sTXNMM3QtQTFiNDc1UD4vdGV4dD48dGV4dCB4PSIxOTgiIHk9IjQ1NCIgY2xhc3M9Im1pKyI+OGpBM1EgKz4vdGV4dD48L3N2Zz4=">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 8px;
+            font-size: 16px;
+            user-select: none;
+            -webkit-user-select: none;
+            overscroll-behavior: none;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .install-prompt {
+            background: #27ae60;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .install-prompt.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            padding: 20px 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            padding-bottom: 30px;
+        }
+
+        .section-title {
+            background: #3498db;
+            color: white;
+            padding: 12px 15px;
+            margin: -20px -15px 20px -15px;
+            font-weight: 700;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section-title .emoji {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .input-row:focus-within {
+            border-color: #3498db;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+        }
+
+        .input-row label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95em;
+            line-height: 1.3;
+        }
+
+        .input-row input {
+            width: 90px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: right;
+            font-size: 16px;
+            font-weight: 700;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .input-row input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+            transform: scale(1.02);
+        }
+
+        .calculated-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            border-radius: 10px;
+            border-left: 5px solid #27ae60;
+            box-shadow: 0 2px 8px rgba(39, 174, 96, 0.1);
+        }
+
+        .calculated-row label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95em;
+            line-height: 1.3;
+        }
+
+        .calculated-value {
+            width: 90px;
+            padding: 12px;
+            background: white;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            text-align: right;
+            font-weight: 700;
+            color: #27ae60;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(39, 174, 96, 0.1);
+        }
+
+        .negotiation-section {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        }
+
+        .negotiation-section .section-title {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .analysis-section {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
+        }
+
+        .analysis-section .section-title {
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+        }
+
+        .analysis-section .calculated-row {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left-color: #2980b9;
+        }
+
+        .analysis-section .calculated-value {
+            border-color: #2980b9;
+            color: #2980b9;
+        }
+
+        .formula-hint {
+            font-size: 0.7em;
+            color: #666;
+            font-family: 'Courier New', monospace;
+            margin-top: 4px;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+
+        .clear-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1.1em;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .clear-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+        }
+
+        .percentage-display {
+            font-size: 0.8em;
+            color: #666;
+            margin-left: 2px;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 1.1em;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .save-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 6px rgba(39, 174, 96, 0.4);
+        }
+
+        /* PWA specific styles */
+        @media (display-mode: standalone) {
+            .header {
+                padding-top: 25px; /* Account for status bar */
+            }
+            
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) fixed;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 400px) {
+            .input-row,
+            .calculated-row {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .input-row input,
+            .calculated-value {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .section {
+                padding: 15px 10px;
+            }
+            
+            .section-title {
+                margin: -15px -10px 15px -10px;
+            }
+        }
+
+        /* Touch improvements */
+        input[type="number"] {
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Loading animation */
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Haptic feedback simulation */
+        .vibrate {
+            animation: vibrate 0.1s ease-in-out;
+        }
+
+        @keyframes vibrate {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                background: #1e1e1e;
+                color: #ffffff;
+            }
+            
+            .input-row {
+                background: #2d2d2d;
+            }
+            
+            .input-row input {
+                background: #3d3d3d;
+                color: white;
+                border-color: #555;
+            }
+            
+            .formula-hint {
+                color: #aaa;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="install-prompt" id="installPrompt" onclick="installApp()">
+            📱 Install Settlement Calculator as an App - Tap here!
+        </div>
+        
+        <div class="header">
+            <h1>📊 Settlement Calculator</h1>
+            <p>Professional Mobile App</p>
+        </div>
+
+        <!-- Primary Settlement Data -->
+        <div class="section">
+            <div class="section-title">
+                <span class="emoji">💰</span>
+                Primary Settlement Data
+            </div>
+            
+            <div class="input-row">
+                <label>Settlement</label>
+                <input type="number" id="settlement" placeholder="0" inputmode="decimal">
+            </div>
+            
+            <div class="input-row">
+                <label>Expenses</label>
+                <input type="number" id="expenses" placeholder="0" inputmode="decimal">
+            </div>
+            
+            <div class="input-row">
+                <label>Balances</label>
+                <input type="number" id="balances" placeholder="0" inputmode="decimal">
+            </div>
+            
+            <div class="input-row">
+                <label>Subrogation</label>
+                <input type="number" id="subrogation" placeholder="0" inputmode="decimal">
+            </div>
+            
+            <div class="calculated-row">
+                <label>
+                    Available
+                    <div class="formula-hint">Settlement - Expenses - Balances - Subrogation</div>
+                </label>
+                <div class="calculated-value" id="available">0</div>
+            </div>
+        </div>
+
+        <!-- Negotiation Analysis -->
+        <div class="section negotiation-section">
+            <div class="section-title">
+                <span class="emoji">🤝</span>
+                Negotiation Analysis
+            </div>
+            
+            <div class="input-row">
+                <label>Demand</label>
+                <input type="number" id="demand" placeholder="0" inputmode="decimal">
+            </div>
+            
+            <div class="input-row">
+                <label>Offer</label>
+                <input type="number" id="offer" placeholder="0" inputmode="decimal">
+            </div>
+            
+            <div class="calculated-row">
+                <label>
+                    Midpoint
+                    <div class="formula-hint">Demand - ((Demand - Offer) ÷ 2)</div>
+                </label>
+                <div class="calculated-value" id="midpoint">0</div>
+            </div>
+        </div>
+
+        <!-- Provider & Fee Analysis -->
+        <div class="section analysis-section">
+            <div class="section-title">
+                <span class="emoji">🏥</span>
+                Provider & Fee Analysis
+            </div>
+            
+            <div class="input-row">
+                <label>Provider</label>
+                <input type="number" id="provider" placeholder="0" inputmode="decimal">
+            </div>
+            
+            <div class="calculated-row">
+                <label>
+                    Proposed
+                    <div class="formula-hint">(Available ÷ (Settlement × 0.8 + Provider)) × Provider</div>
+                </label>
+                <div class="calculated-value" id="proposed">0</div>
+            </div>
+            
+            <div class="input-row">
+                <label>Loan</label>
+                <input type="number" id="loan" placeholder="0" inputmode="decimal">
+            </div>
+            
+            <div class="calculated-row">
+                <label>
+                    Split
+                    <div class="formula-hint">(Available - Proposed) ÷ 2 - Loan</div>
+                </label>
+                <div class="calculated-value" id="split">0</div>
+            </div>
+        </div>
+
+        <!-- Fee Structure Analysis -->
+        <div class="section">
+            <div class="section-title">
+                <span class="emoji">📈</span>
+                Fee Structure Analysis
+            </div>
+            
+            <div class="calculated-row">
+                <label>
+                    Fee Percentage
+                    <div class="formula-hint">Split ÷ Settlement × 100</div>
+                </label>
+                <div class="calculated-value" id="feePercent">0<span class="percentage-display">%</span></div>
+            </div>
+            
+            <div class="calculated-row">
+                <label>
+                    Net @ 33%
+                    <div class="formula-hint">Available - Proposed - (Settlement × 0.33) - Loan</div>
+                </label>
+                <div class="calculated-value" id="netAt33">0</div>
+            </div>
+            
+            <div class="calculated-row">
+                <label>
+                    Net @ 40%
+                    <div class="formula-hint">Available - Proposed - (Settlement × 0.40) - Loan</div>
+                </label>
+                <div class="calculated-value" id="netAt40">0</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="section">
+            <button class="save-btn" onclick="saveData()">💾 Save Calculation</button>
+            <button class="clear-btn" onclick="clearAll()">🗑️ Clear All Values</button>
+        </div>
+    </div>
+
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('data:text/javascript;base64,Y29uc3QgQ0FDSEVfTkFNRSA9ICdzZXR0bGVtZW50LWNhbGMtdjEnOwpjb25zdCB1cmxzVG9DYWNoZSA9IFsKICAnLycsCiAgJy9pbmRleC5odG1sJwpdOwoKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4gewogIGV2ZW50LndhaXRVbnRpbCgKICAgIGNhY2hlcy5vcGVuKENBQ0hFX05BTUUpCiAgICAgIC50aGVuKGNhY2hlID0+IGNhY2hlLmFkZEFsbCh1cmxzVG9DYWNoZSkpCiAgKTsKfSk7CgpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2ZldGNoJywgZXZlbnQgPT4gewogIGV2ZW50LnJlc3BvbmRXaXRoKAogICAgY2FjaGVzLm1hdGNoKGV2ZW50LnJlcXVlc3QpCiAgICAgIC50aGVuKHJlc3BvbnNlID0+IHsKICAgICAgICByZXR1cm4gcmVzcG9uc2UgfHwgZmV0Y2goZXZlbnQucmVxdWVzdCk7CiAgICAgIH0pCiAgKTsKfSk7')
+                .then(() => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed'));
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.add('show');
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                        document.getElementById('installPrompt').classList.remove('show');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        // Haptic feedback simulation
+        function vibrate() {
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        function formatNumber(num) {
+            if (num === 0 || isNaN(num)) return '0';
+            return Math.round(num).toLocaleString();
+        }
+
+        function calculate() {
+            // Get input values
+            const settlement = parseFloat(document.getElementById('settlement').value) || 0;
+            const expenses = parseFloat(document.getElementById('expenses').value)
