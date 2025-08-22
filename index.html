@@ -112,6 +112,10 @@
             font-size: 1.2em;
         }
 
+        .case-section .section-title {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        }
+
         .input-row {
             display: grid;
             grid-template-columns: 1fr auto;
@@ -265,6 +269,46 @@
             box-shadow: 0 2px 6px rgba(39, 174, 96, 0.4);
         }
 
+        .pdf-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 1.1em;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+        }
+
+        .pdf-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 6px rgba(155, 89, 182, 0.4);
+        }
+
+        .email-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 1.1em;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .email-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 6px rgba(52, 152, 219, 0.4);
+        }
+
         @media (display-mode: standalone) {
             .header {
                 padding-top: 25px;
@@ -319,6 +363,19 @@
         <div class="header">
             <h1>📊 Settlement Calculator</h1>
             <p>Professional Mobile App</p>
+        </div>
+
+        <!-- Case Information -->
+        <div class="section case-section">
+            <div class="section-title">
+                <span class="emoji">📁</span>
+                Case Information
+            </div>
+            
+            <div class="input-row">
+                <label>Case Name</label>
+                <input type="text" id="caseName" placeholder="Enter case name" style="width: 200px; text-align: left;">
+            </div>
         </div>
 
         <!-- Primary Settlement Data -->
@@ -452,6 +509,8 @@
         <!-- Action Buttons -->
         <div class="section">
             <button class="save-btn" onclick="saveData()">💾 Save Calculation</button>
+            <button class="pdf-btn" onclick="generatePDF()">📄 Generate PDF Report</button>
+            <button class="email-btn" onclick="emailReport()">📧 Email Report</button>
             <button class="clear-btn" onclick="clearAll()">🗑️ Clear All Values</button>
         </div>
     </div>
@@ -573,7 +632,15 @@
                 provider: document.getElementById('provider').value,
                 loan: document.getElementById('loan').value,
                 timestamp: new Date().toISOString()
-            };
+            // Add vibration to button clicks
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('save-btn') || 
+                e.target.classList.contains('clear-btn') || 
+                e.target.classList.contains('pdf-btn') || 
+                e.target.classList.contains('email-btn')) {
+                vibrate();
+            }
+        });
             
             // Save to localStorage
             localStorage.setItem('settlementCalculation', JSON.stringify(data));
@@ -615,6 +682,12 @@
                 });
             });
             
+            // Add event listener for case name field (text input)
+            const caseNameInput = document.getElementById('caseName');
+            caseNameInput.addEventListener('focus', function() {
+                this.select(); // Select all text when focused for easy editing
+            });
+            
             // Load any saved data
             loadSavedData();
             
@@ -632,12 +705,477 @@
             }
         }
 
-        // Add vibration to button clicks
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('save-btn') || e.target.classList.contains('clear-btn')) {
-                vibrate();
+        // PDF Generation and Email Functions
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            
+            // Create new PDF document
+            const doc = new jsPDF();
+            
+            // Get case name
+            const caseName = document.getElementById('caseName').value || 'Untitled Case';
+            
+            // Get current calculation values with proper formatting
+            const settlement = document.getElementById('settlement').value || '0';
+            const expenses = document.getElementById('expenses').value || '0';
+            const balances = document.getElementById('balances').value || '0';
+            const subrogation = document.getElementById('subrogation').value || '0';
+            const demand = document.getElementById('demand').value || '0';
+            const offer = document.getElementById('offer').value || '0';
+            const provider = document.getElementById('provider').value || '0';
+            const loan = document.getElementById('loan').value || '0';
+            
+            // Helper function to format numbers for PDF
+            function formatForPDF(value) {
+                const num = parseFloat(value || 0);
+                if (num === 0) return '$0';
+                return '
+            
+            // Get calculated values (formatted)
+            const available = document.getElementById('available').textContent;
+            const midpoint = document.getElementById('midpoint').textContent;
+            const proposed = document.getElementById('proposed').textContent;
+            const split = document.getElementById('split').textContent;
+            const feePercent = document.getElementById('feePercent').textContent;
+            const netAt33 = document.getElementById('netAt33').textContent;
+            const netAt40 = document.getElementById('netAt40').textContent;
+            
+            // Add header with case name
+            doc.setFontSize(20);
+            doc.setTextColor(44, 62, 80);
+            doc.text('Settlement Analysis Report', 105, 20, { align: 'center' });
+            
+            // Add case name
+            doc.setFontSize(16);
+            doc.setTextColor(52, 73, 94);
+            doc.text(`Case: ${caseName}`, 105, 30, { align: 'center' });
+            
+            // Add date
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            const currentDate = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            doc.text(`Generated: ${currentDate}`, 105, 40, { align: 'center' });
+            
+            // Primary Settlement Data Section
+            doc.setFontSize(14);
+            doc.setTextColor(52, 152, 219);
+            doc.text('Primary Settlement Data', 20, 60);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            let yPos = 75;
+            
+            doc.text(`Settlement Amount:`, 25, yPos);
+            doc.text(`${parseFloat(settlement || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Expenses:`, 25, yPos);
+            doc.text(`${parseFloat(expenses || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Balances:`, 25, yPos);
+            doc.text(`${parseFloat(balances || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Subrogation:`, 25, yPos);
+            doc.text(`${parseFloat(subrogation || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.setTextColor(39, 174, 96);
+            doc.setFontSize(12);
+            doc.text(`Available Amount:`, 25, yPos);
+            doc.text(`${available}`, 120, yPos);
+            yPos += 20;
+            
+            // Negotiation Analysis Section
+            doc.setFontSize(14);
+            doc.setTextColor(243, 156, 18);
+            doc.text('Negotiation Analysis', 20, yPos);
+            yPos += 15;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            doc.text(`Demand:`, 25, yPos);
+            doc.text(`${parseFloat(demand || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Offer:`, 25, yPos);
+            doc.text(`${parseFloat(offer || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.setTextColor(243, 156, 18);
+            doc.setFontSize(12);
+            doc.text(`Midpoint:`, 25, yPos);
+            doc.text(`${midpoint}`, 120, yPos);
+            yPos += 20;
+            
+            // Provider & Fee Analysis Section
+            doc.setFontSize(14);
+            doc.setTextColor(41, 128, 185);
+            doc.text('Provider & Fee Analysis', 20, yPos);
+            yPos += 15;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            doc.text(`Provider Amount:`, 25, yPos);
+            doc.text(`${parseFloat(provider || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Loan Amount:`, 25, yPos);
+            doc.text(`${parseFloat(loan || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.setTextColor(41, 128, 185);
+            doc.setFontSize(12);
+            doc.text(`Proposed Reduction:`, 25, yPos);
+            doc.text(`${proposed}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Split Amount:`, 25, yPos);
+            doc.text(`${split}`, 120, yPos);
+            yPos += 20;
+            
+            // Fee Structure Analysis Section
+            doc.setFontSize(14);
+            doc.setTextColor(155, 89, 182);
+            doc.text('Fee Structure Analysis', 20, yPos);
+            yPos += 15;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(155, 89, 182);
+            
+            doc.text(`Fee Percentage:`, 25, yPos);
+            doc.text(`${feePercent}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Net @ 33%:`, 25, yPos);
+            doc.text(`${netAt33}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Net @ 40%:`, 25, yPos);
+            doc.text(`${netAt40}`, 120, yPos);
+            
+            // Add footer
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Generated by Settlement Calculator - Professional Legal Tool', 105, 280, { align: 'center' });
+            
+            // Generate filename with case name and timestamp
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+            const safeFileName = caseName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+            const filename = `${safeFileName}_Settlement_Analysis_${timestamp}.pdf`;
+            
+            // Save the PDF
+            doc.save(filename);
+            
+            // Show feedback
+            const btn = document.querySelector('.pdf-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '✅ PDF Generated!';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 3000);
+        }
+
+        function emailReport() {
+            // Get current values for email
+            const settlement = document.getElementById('settlement').value || '0';
+            const available = document.getElementById('available').textContent;
+            const netAt33 = document.getElementById('netAt33').textContent;
+            const netAt40 = document.getElementById('netAt40').textContent;
+            
+            // Create email subject and body
+            const subject = encodeURIComponent('Settlement Analysis Report');
+            const body = encodeURIComponent(`Settlement Analysis Report
+Generated: ${new Date().toLocaleDateString()}
+
+SUMMARY:
+Settlement Amount: ${parseFloat(settlement || 0).toLocaleString()}
+Available Amount: ${available}
+Net @ 33%: ${netAt33}
+Net @ 40%: ${netAt40}
+
+This report was generated using the Settlement Calculator.
+Please see attached PDF for complete analysis.
+
+Best regards`);
+            
+            // Create mailto link
+            const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+            
+            // Open email client
+            window.location.href = mailtoLink;
+            
+            // Show feedback
+            const btn = document.querySelector('.email-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Email Opened!';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 3000);
+        }
+
+        // Load jsPDF library dynamically
+        function loadJsPDF() {
+            if (window.jspdf) {
+                return Promise.resolve();
             }
-        });
+            
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                script.onload = () => {
+                    resolve();
+                };
+                script.onerror = () => {
+                    reject(new Error('Failed to load jsPDF'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // Override generatePDF to load library first
+        const originalGeneratePDF = generatePDF;
+        generatePDF = function() {
+            loadJsPDF().then(() => {
+                originalGeneratePDF();
+            }).catch((error) => {
+                alert('PDF generation temporarily unavailable. Please try again.');
+                console.error('PDF library loading failed:', error);
+            });
+        };
+    </script>
+</body>
+</html>
+             + num.toLocaleString('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                });
+            }
+            
+            // Get calculated values (formatted)
+            const available = document.getElementById('available').textContent;
+            const midpoint = document.getElementById('midpoint').textContent;
+            const proposed = document.getElementById('proposed').textContent;
+            const split = document.getElementById('split').textContent;
+            const feePercent = document.getElementById('feePercent').textContent;
+            const netAt33 = document.getElementById('netAt33').textContent;
+            const netAt40 = document.getElementById('netAt40').textContent;
+            
+            // Add header
+            doc.setFontSize(20);
+            doc.setTextColor(44, 62, 80);
+            doc.text('Settlement Analysis Report', 105, 25, { align: 'center' });
+            
+            // Add date
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            const currentDate = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            doc.text(`Generated: ${currentDate}`, 105, 35, { align: 'center' });
+            
+            // Primary Settlement Data Section
+            doc.setFontSize(14);
+            doc.setTextColor(52, 152, 219);
+            doc.text('Primary Settlement Data', 20, 55);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            let yPos = 70;
+            
+            doc.text(`Settlement Amount:`, 25, yPos);
+            doc.text(`${parseFloat(settlement || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Expenses:`, 25, yPos);
+            doc.text(`${parseFloat(expenses || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Balances:`, 25, yPos);
+            doc.text(`${parseFloat(balances || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Subrogation:`, 25, yPos);
+            doc.text(`${parseFloat(subrogation || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.setTextColor(39, 174, 96);
+            doc.setFontSize(12);
+            doc.text(`Available Amount:`, 25, yPos);
+            doc.text(`${available}`, 120, yPos);
+            yPos += 20;
+            
+            // Negotiation Analysis Section
+            doc.setFontSize(14);
+            doc.setTextColor(243, 156, 18);
+            doc.text('Negotiation Analysis', 20, yPos);
+            yPos += 15;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            doc.text(`Demand:`, 25, yPos);
+            doc.text(`${parseFloat(demand || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Offer:`, 25, yPos);
+            doc.text(`${parseFloat(offer || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.setTextColor(243, 156, 18);
+            doc.setFontSize(12);
+            doc.text(`Midpoint:`, 25, yPos);
+            doc.text(`${midpoint}`, 120, yPos);
+            yPos += 20;
+            
+            // Provider & Fee Analysis Section
+            doc.setFontSize(14);
+            doc.setTextColor(41, 128, 185);
+            doc.text('Provider & Fee Analysis', 20, yPos);
+            yPos += 15;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            doc.text(`Provider Amount:`, 25, yPos);
+            doc.text(`${parseFloat(provider || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Loan Amount:`, 25, yPos);
+            doc.text(`${parseFloat(loan || 0).toLocaleString()}`, 120, yPos);
+            yPos += 8;
+            
+            doc.setTextColor(41, 128, 185);
+            doc.setFontSize(12);
+            doc.text(`Proposed Reduction:`, 25, yPos);
+            doc.text(`${proposed}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Split Amount:`, 25, yPos);
+            doc.text(`${split}`, 120, yPos);
+            yPos += 20;
+            
+            // Fee Structure Analysis Section
+            doc.setFontSize(14);
+            doc.setTextColor(155, 89, 182);
+            doc.text('Fee Structure Analysis', 20, yPos);
+            yPos += 15;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(155, 89, 182);
+            
+            doc.text(`Fee Percentage:`, 25, yPos);
+            doc.text(`${feePercent}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Net @ 33%:`, 25, yPos);
+            doc.text(`${netAt33}`, 120, yPos);
+            yPos += 8;
+            
+            doc.text(`Net @ 40%:`, 25, yPos);
+            doc.text(`${netAt40}`, 120, yPos);
+            
+            // Add footer
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Generated by Settlement Calculator - Professional Legal Tool', 105, 280, { align: 'center' });
+            
+            // Generate filename with timestamp
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
+            const filename = `Settlement_Analysis_${timestamp}.pdf`;
+            
+            // Save the PDF
+            doc.save(filename);
+            
+            // Show feedback
+            const btn = document.querySelector('.pdf-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '✅ PDF Generated!';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 3000);
+        }
+
+        function emailReport() {
+            // Get current values for email
+            const settlement = document.getElementById('settlement').value || '0';
+            const available = document.getElementById('available').textContent;
+            const netAt33 = document.getElementById('netAt33').textContent;
+            const netAt40 = document.getElementById('netAt40').textContent;
+            
+            // Create email subject and body
+            const subject = encodeURIComponent('Settlement Analysis Report');
+            const body = encodeURIComponent(`Settlement Analysis Report
+Generated: ${new Date().toLocaleDateString()}
+
+SUMMARY:
+Settlement Amount: ${parseFloat(settlement || 0).toLocaleString()}
+Available Amount: ${available}
+Net @ 33%: ${netAt33}
+Net @ 40%: ${netAt40}
+
+This report was generated using the Settlement Calculator.
+Please see attached PDF for complete analysis.
+
+Best regards`);
+            
+            // Create mailto link
+            const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+            
+            // Open email client
+            window.location.href = mailtoLink;
+            
+            // Show feedback
+            const btn = document.querySelector('.email-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Email Opened!';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 3000);
+        }
+
+        // Load jsPDF library dynamically
+        function loadJsPDF() {
+            if (window.jspdf) {
+                return Promise.resolve();
+            }
+            
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                script.onload = () => {
+                    resolve();
+                };
+                script.onerror = () => {
+                    reject(new Error('Failed to load jsPDF'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // Override generatePDF to load library first
+        const originalGeneratePDF = generatePDF;
+        generatePDF = function() {
+            loadJsPDF().then(() => {
+                originalGeneratePDF();
+            }).catch((error) => {
+                alert('PDF generation temporarily unavailable. Please try again.');
+                console.error('PDF library loading failed:', error);
+            });
+        };
     </script>
 </body>
 </html>
