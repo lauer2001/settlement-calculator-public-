@@ -336,7 +336,7 @@
             <div class="calculated-row">
                 <label>
                     Net @ 33%
-                    <div class="formula-hint">Available - Proposed - (Settlement × 0.33) - Loan</div>
+                    <div class="formula-hint">Settlement - 33% Fee - Expenses - Balances - Subrogation - Proposed - Loan</div>
                 </label>
                 <div class="calculated-value" id="netAt33">$0</div>
             </div>
@@ -344,7 +344,7 @@
             <div class="calculated-row">
                 <label>
                     Net @ 40%
-                    <div class="formula-hint">Available - Proposed - (Settlement × 0.40) - Loan</div>
+                    <div class="formula-hint">Settlement - 40% Fee - Expenses - Balances - Subrogation - Proposed - Loan</div>
                 </label>
                 <div class="calculated-value" id="netAt40">$0</div>
             </div>
@@ -410,10 +410,14 @@
             const proposed = denominator > 0 ? (available / denominator) * provider : 0;
             const split = (available - proposed) / 2 - loan;
             
-            // Fee analysis
+            // Fee analysis - CORRECTED FORMULAS
             const feePercent = settlement > 0 ? (split / settlement) * 100 : 0;
-            const netAt33 = available - proposed - (settlement * 0.33) - loan;
-            const netAt40 = available - proposed - (settlement * 0.40) - loan;
+            
+            // Net @ 33% = Settlement - 33% fee - Expenses - Balances - Subrogation - Proposed - Loan
+            const netAt33 = settlement - (settlement * 0.33) - expenses - balances - subrogation - proposed - loan;
+            
+            // Net @ 40% = Settlement - 40% fee - Expenses - Balances - Subrogation - Proposed - Loan  
+            const netAt40 = settlement - (settlement * 0.40) - expenses - balances - subrogation - proposed - loan;
 
             console.log('Calculated:', {available, midpoint, proposed, split, feePercent, netAt33, netAt40}); // Debug log
 
