@@ -211,7 +211,7 @@
     <div class="container">
         <div class="header">
             <h1>Settlement Calculator</h1>
-            <p>Based on Robert Souder's Excel Formulas</p>
+            <p>Professional Legal Settlement Analysis</p>
         </div>
 
         <!-- Case Information -->
@@ -247,9 +247,12 @@
                 <input type="text" id="balances" placeholder="$0">
             </div>
             
-            <div class="input-row">
-                <label for="subrogation">Subrogation (D2)</label>
-                <input type="text" id="subrogation" placeholder="$0">
+            <div class="calculated-row">
+                <label>
+                    Subrogation (D2)
+                    <div class="formula-hint">A2/3</div>
+                </label>
+                <div class="calculated-value" id="subrogation">$0</div>
             </div>
             
             <div class="calculated-row">
@@ -389,26 +392,28 @@
         function calculate() {
             console.log('Calculating with Souder formulas...'); 
             
-            // Get values from inputs (A2, B2, C2, D2, A4, B4, A6, C6)
-            const A2 = parseValue(document.getElementById('settlement').value);   // Settlement
-            const B2 = parseValue(document.getElementById('expenses').value);     // Expenses
-            const C2 = parseValue(document.getElementById('balances').value);     // Balances
-            const D2 = parseValue(document.getElementById('subrogation').value);  // Subrogation (now editable)
-            const A4 = parseValue(document.getElementById('demand').value);       // Demand
-            const B4 = parseValue(document.getElementById('offer').value);        // Offer
-            const A6 = parseValue(document.getElementById('provider').value);     // Provider
-            const C6 = parseValue(document.getElementById('loan').value);         // Loan
+            // Get values from inputs (A2, B2, C2, A4, B4, A6, C6)
+            const A2 = parseValue(document.getElementById('settlement').value); // Settlement
+            const B2 = parseValue(document.getElementById('expenses').value);   // Expenses
+            const C2 = parseValue(document.getElementById('balances').value);   // Balances
+            const A4 = parseValue(document.getElementById('demand').value);     // Demand
+            const B4 = parseValue(document.getElementById('offer').value);      // Offer
+            const A6 = parseValue(document.getElementById('provider').value);   // Provider
+            const C6 = parseValue(document.getElementById('loan').value);       // Loan
 
-            console.log('Input values:', {A2, B2, C2, D2, A4, B4, A6, C6});
+            console.log('Input values:', {A2, B2, C2, A4, B4, A6, C6});
 
             // EXACT SOUDER FORMULAS:
+            // D2: Subrogation = A2/3
+            const D2 = A2 / 3;
+            
             // E2: Available = A2-B2-C2-D2
             const E2 = A2 - B2 - C2 - D2;
             
             // C4: Midpoint = A4-((A4-B4)/2)
             const C4 = A4 > 0 && B4 >= 0 ? A4 - ((A4 - B4) / 2) : 0;
             
-            // D4: 33% of settlement = A2/3
+            // D4: 33% of settlement = A2/3 (same as D2)
             const D4 = A2 / 3;
             
             // E4: 40% of settlement = A2*0.4
@@ -429,9 +434,10 @@
             // D8: Net @ 40% = A2-B2-C2-D2-B6-E4-C6
             const D8 = A2 - B2 - C2 - D2 - B6 - E4 - C6;
 
-            console.log('Calculated values:', {E2, C4, D4, E4, B6, D6, B8, C8, D8});
+            console.log('Calculated values:', {D2, E2, C4, D4, E4, B6, D6, B8, C8, D8});
 
             // Update display with exact Souder results
+            document.getElementById('subrogation').textContent = formatCurrency(D2);
             document.getElementById('available').textContent = formatCurrency(E2);
             document.getElementById('midpoint').textContent = formatCurrency(C4);
             document.getElementById('proposed').textContent = formatCurrency(B6);
