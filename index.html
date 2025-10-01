@@ -1,569 +1,297 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settlement Calculator</title>
-    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
-            font-size: 16px;
+            font-family: 'Inter', sans-serif;
         }
-
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
+        .form-input {
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-
-        .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 20px 15px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 1.4em;
-            margin-bottom: 5px;
-            font-weight: 700;
-        }
-
-        .section {
-            padding: 20px 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .section:last-child {
-            border-bottom: none;
-        }
-
-        .section-title {
-            background: #3498db;
-            color: white;
-            padding: 12px 15px;
-            margin: -20px -15px 20px -15px;
-            font-weight: 700;
-            font-size: 1.1em;
-            display: flex;
-            align-items: center;
-        }
-
-        .case-section .section-title {
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-        }
-
-        .negotiation-section {
-            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-        }
-
-        .negotiation-section .section-title {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-        }
-
-        .analysis-section {
-            background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
-        }
-
-        .analysis-section .section-title {
-            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
-        }
-
-        .input-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .input-row label {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 0.95em;
-        }
-
-        .input-row input {
-            width: 120px;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            text-align: right;
-            font-size: 16px;
-            font-weight: 700;
-            background: white;
-        }
-
-        .input-row input[type="text"]#caseName {
-            text-align: left;
-            width: 200px;
-        }
-
-        .input-row input:focus {
+        .form-input:focus {
             outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
-        }
-
-        .calculated-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 12px;
-            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
-            border-radius: 10px;
-            border-left: 5px solid #27ae60;
-        }
-
-        .calculated-value {
-            width: 120px;
-            padding: 12px;
-            background: white;
-            border: 2px solid #27ae60;
-            border-radius: 8px;
-            text-align: right;
-            font-weight: 700;
-            color: #27ae60;
-            font-size: 16px;
-        }
-
-        .analysis-section .calculated-row {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border-left-color: #2980b9;
-        }
-
-        .analysis-section .calculated-value {
-            border-color: #2980b9;
-            color: #2980b9;
-        }
-
-        .formula-hint {
-            font-size: 0.7em;
-            color: #666;
-            font-family: monospace;
-            margin-top: 4px;
-            opacity: 0.8;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 1.1em;
-            transition: all 0.2s ease;
-        }
-
-        .save-btn {
-            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
-        }
-
-        .clear-btn {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        @media (max-width: 400px) {
-            .input-row,
-            .calculated-row {
-                grid-template-columns: 1fr;
-                text-align: center;
-                gap: 10px;
-            }
-            
-            .input-row input,
-            .calculated-value {
-                width: 100%;
-                text-align: center;
-            }
+            box-shadow: 0 0 0 2px #3b82f6;
+            border-color: #3b82f6;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Settlement Calculator</h1>
-            <p>Professional Legal Settlement Analysis</p>
-        </div>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen py-12">
 
-        <!-- Case Information -->
-        <div class="section case-section">
-            <div class="section-title">
-                Case Information
-            </div>
-            
-            <div class="input-row">
-                <label for="caseName">Case Name</label>
-                <input type="text" id="caseName" placeholder="Enter case name">
-            </div>
-        </div>
+    <div class="w-full max-w-lg mx-auto p-4">
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+            <header class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">Settlement Calculator</h1>
+                <p class="text-gray-500 mt-2">A comprehensive tool to estimate settlement outcomes.</p>
+            </header>
 
-        <!-- Primary Settlement Data -->
-        <div class="section">
-            <div class="section-title">
-                Primary Settlement Data
-            </div>
-            
-            <div class="input-row">
-                <label for="settlement">Settlement (A2)</label>
-                <input type="text" id="settlement" placeholder="$0">
-            </div>
-            
-            <div class="input-row">
-                <label for="expenses">Expenses (B2)</label>
-                <input type="text" id="expenses" placeholder="$0">
-            </div>
-            
-            <div class="input-row">
-                <label for="balances">Balances (C2)</label>
-                <input type="text" id="balances" placeholder="$0">
-            </div>
-            
-            <div class="calculated-row">
-                <label>
-                    Subrogation (D2)
-                    <div class="formula-hint">A2/3</div>
-                </label>
-                <div class="calculated-value" id="subrogation">$0</div>
-            </div>
-            
-            <div class="calculated-row">
-                <label>
-                    Available (E2)
-                    <div class="formula-hint">A2-B2-C2-D2</div>
-                </label>
-                <div class="calculated-value" id="available">$0</div>
-            </div>
-        </div>
+            <div class="space-y-8">
+                <!-- Case Details Section -->
+                <section>
+                    <h2 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-6">Case Details</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                        <div>
+                            <label for="grossSettlement" class="block text-sm font-medium text-gray-700 mb-1">Gross Settlement</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input id="grossSettlement" type="number" placeholder="20000" class="form-input w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="demand" class="block text-sm font-medium text-gray-700 mb-1">Demand</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input id="demand" type="number" placeholder="40000" class="form-input w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="offer" class="block text-sm font-medium text-gray-700 mb-1">Offer</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input id="offer" type="number" placeholder="20000" class="form-input w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg flex justify-between items-center sm:col-start-2">
+                            <span class="font-medium text-gray-600">Midpoint:</span>
+                            <span id="midpointResult" class="font-bold text-gray-800 text-lg">$0.00</span>
+                        </div>
+                    </div>
+                </section>
 
-        <!-- Negotiation Analysis -->
-        <div class="section negotiation-section">
-            <div class="section-title">
-                Negotiation Analysis
-            </div>
-            
-            <div class="input-row">
-                <label for="demand">Demand (A4)</label>
-                <input type="text" id="demand" placeholder="$0">
-            </div>
-            
-            <div class="input-row">
-                <label for="offer">Offer (B4)</label>
-                <input type="text" id="offer" placeholder="$0">
-            </div>
-            
-            <div class="calculated-row">
-                <label>
-                    Midpoint (C4)
-                    <div class="formula-hint">A4-((A4-B4)/2)</div>
-                </label>
-                <div class="calculated-value" id="midpoint">$0</div>
-            </div>
-        </div>
+                <!-- Deductions Section -->
+                <section>
+                    <h2 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-6">Deductions & Liens</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                         <div>
+                            <label for="attorneyFee" class="block text-sm font-medium text-gray-700 mb-1">Attorney Fee</label>
+                            <div class="relative">
+                               <input type="number" id="attorneyFee" value="33.33" class="form-input w-full pl-4 pr-12 py-2 border border-gray-300 rounded-lg shadow-sm">
+                               <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">%</span>
+                           </div>
+                        </div>
+                        <div>
+                            <label for="caseExpenses" class="block text-sm font-medium text-gray-700 mb-1">Case Expenses</label>
+                             <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input id="caseExpenses" type="number" placeholder="500" class="form-input w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="medicalBills" class="block text-sm font-medium text-gray-700 mb-1">Medical Bills (Balances)</label>
+                             <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input id="medicalBills" type="number" placeholder="3948.50" class="form-input w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="subro" class="block text-sm font-medium text-gray-700 mb-1">Subro</label>
+                             <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input id="subro" type="number" placeholder="4816.34" class="form-input w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="lopProvider" class="block text-sm font-medium text-gray-700 mb-1">LOP Provider</label>
+                             <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input id="lopProvider" type="number" placeholder="5000" class="form-input w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="loan" class="block text-sm font-medium text-gray-700 mb-1">Loan</label>
+                             <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">$</span>
+                                <input id="loan" type="number" placeholder="1000" class="form-input w-full pl-7 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Results Section -->
+                <section id="results" class="space-y-4 pt-4 border-t border-gray-200">
+                     <h2 class="text-xl font-semibold text-gray-800 text-center">Breakdown</h2>
+                     <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                        <span class="text-gray-600">Available Funds (Pre-Attorney):</span>
+                        <span id="availableFundsResult" class="font-semibold text-gray-800 text-lg">$0.00</span>
+                    </div>
+                     <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                        <div>
+                            <span class="text-gray-600">Attorney's Fee Amount:</span>
+                            <p id="attorneyFeeNote" class="text-xs text-green-600 font-medium hidden mt-1">Fee automatically reduced for client benefit.</p>
+                            <p id="attorneyFeeReducedPercent" class="text-xs text-gray-500 font-medium hidden mt-1"></p>
+                        </div>
+                        <span id="attorneyFeeResult" class="font-semibold text-gray-800 text-lg">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                        <span class="text-gray-600">Proposed LOP Reduction:</span>
+                        <span id="proposedReductionResult" class="font-semibold text-yellow-800 text-lg">$0.00</span>
+                    </div>
+                     <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                        <span class="text-gray-600">Total Deductions (Net):</span>
+                        <span id="totalDeductionsResult" class="font-semibold text-gray-800 text-lg">$0.00</span>
+                    </div>
+                    <div class="bg-blue-600 text-white p-4 rounded-lg text-center mt-4 transition-colors duration-300" id="netToClientCard">
+                        <span class="text-lg uppercase tracking-wider">Net To Client</span>
+                        <p id="netToClientResult" class="text-4xl font-bold mt-1">$0.00</p>
+                    </div>
+                </section>
 
-        <!-- Provider & Fee Analysis -->
-        <div class="section analysis-section">
-            <div class="section-title">
-                Provider & Fee Analysis
+                 <!-- Reset Button -->
+                <button id="resetButton" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out mt-4">
+                    Reset All Fields
+                </button>
             </div>
-            
-            <div class="input-row">
-                <label for="provider">Provider (A6)</label>
-                <input type="text" id="provider" placeholder="$0">
-            </div>
-            
-            <div class="calculated-row">
-                <label>
-                    Proposed (B6)
-                    <div class="formula-hint">(E2/(A2*0.4*2+A6))*A6</div>
-                </label>
-                <div class="calculated-value" id="proposed">$0</div>
-            </div>
-            
-            <div class="input-row">
-                <label for="loan">Loan (C6)</label>
-                <input type="text" id="loan" placeholder="$0">
-            </div>
-            
-            <div class="calculated-row">
-                <label>
-                    Split (D6)
-                    <div class="formula-hint">(A2-B2-C2-D2-B6)/2-C6</div>
-                </label>
-                <div class="calculated-value" id="split">$0</div>
-            </div>
-        </div>
-
-        <!-- Fee Structure Analysis -->
-        <div class="section">
-            <div class="section-title">
-                Fee Structure Analysis
-            </div>
-            
-            <div class="calculated-row">
-                <label>
-                    Fee Percentage (B8)
-                    <div class="formula-hint">D6/A2</div>
-                </label>
-                <div class="calculated-value" id="feePercent">0%</div>
-            </div>
-            
-            <div class="calculated-row">
-                <label>
-                    Net @ 33% (C8)
-                    <div class="formula-hint">A2-B2-C2-D2-B6-D4-C6</div>
-                </label>
-                <div class="calculated-value" id="netAt33">$0</div>
-            </div>
-            
-            <div class="calculated-row">
-                <label>
-                    Net @ 40% (D8)
-                    <div class="formula-hint">A2-B2-C2-D2-B6-E4-C6</div>
-                </label>
-                <div class="calculated-value" id="netAt40">$0</div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="section">
-            <button class="btn save-btn" onclick="saveData()">Save Calculation</button>
-            <button class="btn clear-btn" onclick="clearAll()">Clear All Values</button>
         </div>
     </div>
 
     <script>
-        // Helper function to parse currency input
-        function parseValue(str) {
-            if (!str) return 0;
-            return parseFloat(str.toString().replace(/[$,]/g, '')) || 0;
+        // Input Elements
+        const grossSettlementInput = document.getElementById('grossSettlement');
+        const demandInput = document.getElementById('demand');
+        const offerInput = document.getElementById('offer');
+        const attorneyFeeInput = document.getElementById('attorneyFee');
+        const caseExpensesInput = document.getElementById('caseExpenses');
+        const medicalBillsInput = document.getElementById('medicalBills');
+        const subroInput = document.getElementById('subro');
+        const lopProviderInput = document.getElementById('lopProvider');
+        const loanInput = document.getElementById('loan');
+
+        // Result Elements
+        const midpointResult = document.getElementById('midpointResult');
+        const availableFundsResult = document.getElementById('availableFundsResult');
+        const attorneyFeeResult = document.getElementById('attorneyFeeResult');
+        const proposedReductionResult = document.getElementById('proposedReductionResult');
+        const totalDeductionsResult = document.getElementById('totalDeductionsResult');
+        const netToClientResult = document.getElementById('netToClientResult');
+        const netToClientCard = document.getElementById('netToClientCard');
+
+        const resetButton = document.getElementById('resetButton');
+
+        const allInputs = [
+            grossSettlementInput, demandInput, offerInput, attorneyFeeInput,
+            caseExpensesInput, medicalBillsInput, subroInput, lopProviderInput, loanInput
+        ];
+
+        // Function to format numbers as US currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+            }).format(amount);
         }
 
-        // Helper function to format currency
-        function formatCurrency(num) {
-            if (num === 0) return '$0';
-            return '$' + Math.round(num).toLocaleString();
-        }
-
-        // Helper function to format percentage
-        function formatPercent(num) {
-            if (num === 0) return '0%';
-            return num.toFixed(2) + '%';
-        }
-
-        // Format input as user types
-        function formatInput(input) {
-            let value = input.value.replace(/[^0-9.]/g, '');
-            if (value && !isNaN(value)) {
-                let num = parseFloat(value);
-                input.value = '$' + num.toLocaleString();
-            }
-        }
-
-        // Main calculation function using EXACT Souder formulas
+        // Main calculation function
         function calculate() {
-            console.log('Calculating with Souder formulas...'); 
-            
-            // Get values from inputs (A2, B2, C2, A4, B4, A6, C6)
-            const A2 = parseValue(document.getElementById('settlement').value); // Settlement
-            const B2 = parseValue(document.getElementById('expenses').value);   // Expenses
-            const C2 = parseValue(document.getElementById('balances').value);   // Balances
-            const A4 = parseValue(document.getElementById('demand').value);     // Demand
-            const B4 = parseValue(document.getElementById('offer').value);      // Offer
-            const A6 = parseValue(document.getElementById('provider').value);   // Provider
-            const C6 = parseValue(document.getElementById('loan').value);       // Loan
+            // Get all values from inputs, defaulting to 0 if empty
+            const grossSettlement = parseFloat(grossSettlementInput.value) || 0;
+            const demand = parseFloat(demandInput.value) || 0;
+            const offer = parseFloat(offerInput.value) || 0;
+            const attorneyFeePercent = parseFloat(attorneyFeeInput.value) || 0;
+            const caseExpenses = parseFloat(caseExpensesInput.value) || 0;
+            const medicalBills = parseFloat(medicalBillsInput.value) || 0;
+            const subro = parseFloat(subroInput.value) || 0;
+            const lopProvider = parseFloat(lopProviderInput.value) || 0;
+            const loan = parseFloat(loanInput.value) || 0;
 
-            console.log('Input values:', {A2, B2, C2, A4, B4, A6, C6});
-
-            // EXACT SOUDER FORMULAS:
-            // D2: Subrogation = A2/3
-            const D2 = A2 / 3;
-            
-            // E2: Available = A2-B2-C2-D2
-            const E2 = A2 - B2 - C2 - D2;
-            
-            // C4: Midpoint = A4-((A4-B4)/2)
-            const C4 = A4 > 0 && B4 >= 0 ? A4 - ((A4 - B4) / 2) : 0;
-            
-            // D4: 33% of settlement = A2/3 (same as D2)
-            const D4 = A2 / 3;
-            
-            // E4: 40% of settlement = A2*0.4
-            const E4 = A2 * 0.4;
-            
-            // B6: Proposed = (E2/(A2*0.4*2+A6))*A6
-            const B6 = (A2 > 0 && (A2 * 0.4 * 2 + A6) > 0) ? (E2 / (A2 * 0.4 * 2 + A6)) * A6 : 0;
-            
-            // D6: Split = (A2-B2-C2-D2-B6)/2-C6
-            const D6 = (A2 - B2 - C2 - D2 - B6) / 2 - C6;
-            
-            // B8: Fee % = D6/A2
-            const B8 = A2 > 0 ? (D6 / A2) * 100 : 0;
-            
-            // C8: Net @ 33% = A2-B2-C2-D2-B6-D4-C6
-            const C8 = A2 - B2 - C2 - D2 - B6 - D4 - C6;
-            
-            // D8: Net @ 40% = A2-B2-C2-D2-B6-E4-C6
-            const D8 = A2 - B2 - C2 - D2 - B6 - E4 - C6;
-
-            console.log('Calculated values:', {D2, E2, C4, D4, E4, B6, D6, B8, C8, D8});
-
-            // Update display with exact Souder results
-            document.getElementById('subrogation').textContent = formatCurrency(D2);
-            document.getElementById('available').textContent = formatCurrency(E2);
-            document.getElementById('midpoint').textContent = formatCurrency(C4);
-            document.getElementById('proposed').textContent = formatCurrency(B6);
-            document.getElementById('split').textContent = formatCurrency(D6);
-            document.getElementById('feePercent').textContent = formatPercent(B8);
-            document.getElementById('netAt33').textContent = formatCurrency(C8);
-            document.getElementById('netAt40').textContent = formatCurrency(D8);
-        }
-
-        // Save function
-        function saveData() {
-            const data = {
-                caseName: document.getElementById('caseName').value,
-                settlement: document.getElementById('settlement').value,
-                expenses: document.getElementById('expenses').value,
-                balances: document.getElementById('balances').value,
-                demand: document.getElementById('demand').value,
-                offer: document.getElementById('offer').value,
-                provider: document.getElementById('provider').value,
-                loan: document.getElementById('loan').value,
-                timestamp: new Date().toISOString()
-            };
-            
-            try {
-                localStorage.setItem('settlementData', JSON.stringify(data));
-                
-                const btn = document.querySelector('.save-btn');
-                const originalText = btn.textContent;
-                btn.textContent = 'Saved!';
-                btn.style.background = '#27ae60';
-                
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = '';
-                }, 2000);
-                
-                console.log('Data saved successfully');
-            } catch (error) {
-                console.error('Save failed:', error);
-                alert('Save failed. Please try again.');
+            // Simple validation to prevent negative numbers in calculation
+            if ([grossSettlement, demand, offer, attorneyFeePercent, caseExpenses, medicalBills, subro, lopProvider, loan].some(v => v < 0)) {
+                return;
             }
-        }
 
-        // Clear function
-        function clearAll() {
-            document.getElementById('caseName').value = '';
-            document.getElementById('settlement').value = '';
-            document.getElementById('expenses').value = '';
-            document.getElementById('balances').value = '';
-            document.getElementById('subrogation').value = '';
-            document.getElementById('demand').value = '';
-            document.getElementById('offer').value = '';
-            document.getElementById('provider').value = '';
-            document.getElementById('loan').value = '';
+            // Perform calculations based on the new spreadsheet logic
+            const midpoint = (demand + offer) / 2;
+            const availableFunds = grossSettlement - caseExpenses - medicalBills - subro;
             
-            document.getElementById('available').textContent = '$0';
-            document.getElementById('midpoint').textContent = '$0';
-            document.getElementById('proposed').textContent = '$0';
-            document.getElementById('split').textContent = '$0';
-            document.getElementById('feePercent').textContent = '0%';
-            document.getElementById('netAt25').textContent = '$0';
-            document.getElementById('netAt33').textContent = '$0';
-            document.getElementById('netAt40').textContent = '$0';
-            
-            const btn = document.querySelector('.clear-btn');
-            const originalText = btn.textContent;
-            btn.textContent = 'Cleared!';
-            
-            setTimeout(() => {
-                btn.textContent = originalText;
-            }, 1000);
-        }
+            // Calculate Proposed Reduction using an updated formula to match the example.
+            let proposedReduction = 0;
+            const otherMedicalBills = medicalBills + subro;
+            const formulaDenominator = (grossSettlement * 0.8) + lopProvider;
+            if (formulaDenominator > 0) {
+                 proposedReduction = (otherMedicalBills / formulaDenominator) * lopProvider;
+            }
+            proposedReduction = Math.max(0, Math.min(lopProvider, proposedReduction));
 
-        // Load saved data
-        function loadData() {
-            try {
-                const saved = localStorage.getItem('settlementData');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    
-                    Object.keys(data).forEach(key => {
-                        const element = document.getElementById(key);
-                        if (element && key !== 'timestamp') {
-                            element.value = data[key];
-                        }
-                    });
-                    
-                    calculate();
-                    console.log('Data loaded successfully');
+            // All deductions EXCEPT attorney fee and the loan
+            const otherDeductions = caseExpenses + medicalBills + subro + lopProvider - proposedReduction;
+
+            // Calculate initial attorney fee
+            let attorneyFeeAmount = grossSettlement * (attorneyFeePercent / 100);
+            // This is the client's share BEFORE their personal loan is deducted
+            let netToClientPreLoan = grossSettlement - attorneyFeeAmount - otherDeductions;
+
+            const attorneyFeeNote = document.getElementById('attorneyFeeNote');
+            const attorneyFeeReducedPercent = document.getElementById('attorneyFeeReducedPercent');
+
+            // Check if client gets less than the firm (before the loan is factored in)
+            if (netToClientPreLoan < attorneyFeeAmount) {
+                // If so, reduce the attorney's fee so both get an equal amount
+                // of what's left after other deductions are paid.
+                const fundsToSplit = grossSettlement - otherDeductions;
+                attorneyFeeAmount = Math.max(0, fundsToSplit / 2); // Ensure it doesn't go negative
+                netToClientPreLoan = Math.max(0, fundsToSplit / 2); // Client's share before loan
+                
+                let reducedPercent = 0;
+                if (grossSettlement > 0) {
+                    reducedPercent = (attorneyFeeAmount / grossSettlement) * 100;
                 }
-            } catch (error) {
-                console.error('Load failed:', error);
+                attorneyFeeReducedPercent.textContent = `(Effective Rate: ${reducedPercent.toFixed(2)}%)`;
+
+                attorneyFeeNote.classList.remove('hidden');
+                attorneyFeeReducedPercent.classList.remove('hidden');
+            } else {
+                attorneyFeeNote.classList.add('hidden');
+                attorneyFeeReducedPercent.classList.add('hidden');
+            }
+
+            // Now, calculate the final net to client by subtracting the loan from their share
+            const netToClient = netToClientPreLoan - loan;
+
+            // Calculate final totals with the potentially adjusted attorney fee and the loan
+            const totalDeductions = attorneyFeeAmount + otherDeductions + loan;
+
+            // Update the display with formatted values
+            midpointResult.textContent = formatCurrency(midpoint);
+            availableFundsResult.textContent = formatCurrency(availableFunds);
+            attorneyFeeResult.textContent = formatCurrency(attorneyFeeAmount);
+            proposedReductionResult.textContent = formatCurrency(proposedReduction);
+            totalDeductionsResult.textContent = formatCurrency(totalDeductions);
+            netToClientResult.textContent = formatCurrency(netToClient);
+
+            // Change the result card color to red if the net amount is negative
+            if (netToClient < 0) {
+                netToClientCard.classList.remove('bg-blue-600');
+                netToClientCard.classList.add('bg-red-600');
+            } else {
+                netToClientCard.classList.add('bg-blue-600');
+                netToClientCard.classList.remove('bg-red-600');
             }
         }
 
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded, setting up events...');
-            
-            const currencyInputs = document.querySelectorAll('input[type="text"]:not(#caseName)');
-            currencyInputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    formatInput(this);
-                    calculate();
-                });
-                
-                input.addEventListener('input', function() {
-                    setTimeout(() => {
-                        calculate();
-                    }, 300);
-                });
-                
-                input.addEventListener('focus', function() {
-                    this.select();
-                });
+        // Function to reset all fields to their default state
+        function reset() {
+            allInputs.forEach(input => {
+                // Check if the input is not the attorney fee percentage before clearing
+                if (input.id !== 'attorneyFee') {
+                    input.value = '';
+                }
             });
-            
-            document.getElementById('caseName').addEventListener('focus', function() {
-                this.select();
-            });
-            
-            loadData();
+            attorneyFeeInput.value = '33.33'; // Set attorney fee back to default
             calculate();
-            
-            console.log('Setup complete');
+        }
+
+        // Add event listeners to all inputs to calculate in real-time
+        allInputs.forEach(input => {
+            input.addEventListener('input', calculate);
         });
+
+        resetButton.addEventListener('click', reset);
+
+        // Perform an initial calculation when the page loads
+        calculate();
     </script>
 </body>
 </html>
